@@ -10,7 +10,7 @@ vector_size_range   = [ 10^i for i in 1:7 ]
 vector_wins = trues(length(vector_size_range), length(iteration_cnt_range))
 vector_faster = zeros(length(vector_size_range), length(iteration_cnt_range))
 for (i, current_vector_size) in enumerate(vector_size_range), (j, iteration_cnt) in enumerate(iteration_cnt_range)
-	if current_vector_size * iteration_cnt > 10^10
+	if current_vector_size * iteration_cnt >= 10^10
 	    continue
 	end
 	a = rand(current_vector_size)
