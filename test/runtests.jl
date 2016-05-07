@@ -5,24 +5,30 @@ using Base.Test
 @test 1 == 1
 
 
-iteration_cnt_range = [ 10^i for i in 1:10 ]
-vector_size_range   = [ 10^i for i in 1:10 ]
+iteration_cnt_range = [ 10^i for i in 1:7 ]
+vector_size_range   = [ 10^i for i in 1:7 ]
 vector_wins = trues(length(vector_size_range), length(iteration_cnt_range))
+vector_faster = zeros(length(vector_size_range), length(iteration_cnt_range))
 for (i, current_vector_size) in enumerate(vector_size_range), (j, iteration_cnt) in enumerate(iteration_cnt_range)
 	a = rand(current_vector_size)
 	b = rand(current_vector_size)
-	c = zeros(current_vector_size)
+	c_vec = zeros(current_vector_size)
+	c_iter = zeros(current_vector_size)
 	tic()
-	vecaddbyvec(a, b, c, iteration_cnt)
+	vecaddbyvec!(a, b, c_vec, iteration_cnt)
 	vector_time = toq();
 	tic()
-	vecaddbyiter(a, b, c, iteration_cnt)
+	vecaddbyiter!(a, b, c_iter, iteration_cnt)
 	iteration_time = toq();
+	@test c_vec == c_iter
 	vector_wins[i, j] = iteration_time > vector_time ? true: false
+	vector_faster[i, j] = iteration_time / vector_time
 	if vector_wins[i, j]
-		@printf "For two %d vectors to add for %d times, vector add wins!" current_vector_size iteration_cnt
+		@printf "Two %d dim vectors adding for %d times, vector add wins %.03f faster!\n" current_vector_size iteration_cnt vector_faster[i, j]
 	else
-		@printf "For two %d vectors to add for %d times, iteration add wins!" current_vector_size iteration_cnt
+		@printf "Two %d dim vectors adding for %d times, iteration add wins %.03f faster!\n" current_vector_size iteration_cnt 1/vector_faster[i, j]
 	end
 end
-@printf "%s" a
+
+@printf "The vector add wins:\n %s \n" vector_wins
+@printf "The vector add is x times fast as iteration:\n %s \n" vector_faster
